@@ -1,4 +1,4 @@
-﻿
+
 @font-face {
   font-family: 'Material Symbols Outlined';
   font-style: normal;
@@ -137,5 +137,75 @@
 .no-scrollbar {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
+}
+
+/* Keyframe Animations for Guru Absensi Screen */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popBadge {
+  0% { transform: scale(0.85); opacity: 0.6; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes numBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35) translateY(-2px); color: #0078c8; }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+  50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+}
+
+@keyframes softBreathe {
+  0%, 100% { opacity: 0.88; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-pop-badge {
+  animation: popBadge 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.num-bump {
+  animation: numBounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.live-pulse-glow {
+  animation: pulseGlow 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.pulse-breathe {
+  animation: softBreathe 3s ease-in-out infinite;
+}
+
+.student-card {
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease;
+  will-change: transform, opacity;
+}
+
+.student-card.filtering-out {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  pointer-events: none;
+}
+
+.ripple-btn {
+  position: relative;
+  overflow: hidden;
 }
 

@@ -422,6 +422,8 @@ export default function App() {
             ) : (
             <ValidasiGuruScreen
               user={currentUser}
+              initialClassId={currentUser.kelas_id || 'e88128be-8fc3-4973-8d69-00ef17571626'}
+              onClose={() => setCurrentTab('beranda')}
               onShowToast={showToast}
             />
           )

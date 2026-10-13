@@ -42,6 +42,8 @@ export const USER_PROFILES: Record<string, UserProfile> = {
     roleTitle: 'Guru Produktif TKJ',
     identifier: '19850314 201001 1 008',
     classRoom: 'XII TKJ 1',
+    kelas_id: 'e88128be-8fc3-4973-8d69-00ef17571626',
+    kelas: { id: 'e88128be-8fc3-4973-8d69-00ef17571626', nama: 'XII TKJ 1' },
     homeroomTeacher: '-',
     avatarUrl:
       'https://lh3.googleusercontent.com/aida-public/AB6AXuBsjqqNUms7en4dEsFynEe-Ynj70m9IRBQFAt4kd0q0EC86X5bcowEuKK7P8ESzZQ1GnZPacrA3xHhBPbyzvPgqXjtQzmUdbHn5A7iE7Obpm-e1QLGdAx5Fk04s125mVdFFPsqg4ka06-5JLRBZyHIjrxP65z71ILzB2zNoP6IS7AlEXCqB9WSOVtmqXTEZnVAJ_PElhjC9ooSUx9lDAf0vqxN8gwIyRKMT7mD_nWG0YUat6Ke_v5Cn',
