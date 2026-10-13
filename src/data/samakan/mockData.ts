@@ -67,6 +67,36 @@ export const USER_PROFILES: Record<string, UserProfile> = {
     attendanceRate: 0,
     streakDays: 0,
   },
+  admin: {
+    id: 'user-admin-tu',
+    name: 'Tata Usaha (TU) SMKN 1 Sorong',
+    role: 'operator',
+    roleTitle: 'Tata Usaha / Operator',
+    identifier: 'tu',
+    classRoom: 'Ruang Tata Usaha',
+    homeroomTeacher: '-',
+    avatarUrl:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
+    nipOrNisnLabel: 'ID Staf TU',
+    isAtSchool: true,
+    attendanceRate: 100,
+    streakDays: 30,
+  },
+  superadmin: {
+    id: 'user-superadmin-root',
+    name: 'Superadmin SIAP / Kepala Sekolah',
+    role: 'superadmin',
+    roleTitle: 'Kepala Sekolah / IT Admin',
+    identifier: 'superadmin_sorong',
+    classRoom: 'Ruang Kepala Sekolah',
+    homeroomTeacher: '-',
+    avatarUrl:
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    nipOrNisnLabel: 'ID Superadmin',
+    isAtSchool: true,
+    attendanceRate: 100,
+    streakDays: 30,
+  },
 };
 
 export const INITIAL_CLASS_SUMMARY: ClassAttendanceSummary = {

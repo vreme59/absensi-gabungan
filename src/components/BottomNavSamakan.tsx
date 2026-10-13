@@ -14,21 +14,22 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   pendingValidationCount = 0,
 }) => {
   const isTeacherTier = userRole === 'guru' || userRole === 'wali_kelas' || userRole === 'guru_piket';
+  const isAdminTier = userRole === 'operator' || userRole === 'admin' || userRole === 'superadmin';
   const tabs = [
     {
       id: 'beranda',
-      label: userRole === 'operator' ? 'Panel TU' : 'Beranda',
-      icon: userRole === 'operator' ? 'admin_panel_settings' : 'home',
+      label: isAdminTier ? (userRole === 'superadmin' ? 'Super Admin' : 'Admin TU') : 'Beranda',
+      icon: isAdminTier ? 'admin_panel_settings' : 'home',
     },
     {
       id: 'jadwal',
-      label: userRole === 'operator' ? 'Jadwal' : 'Jadwal',
+      label: 'Jadwal',
       icon: 'calendar_today',
     },
     {
       id: 'absensi',
-      label: userRole === 'operator' ? 'Wali & Piket' : isTeacherTier ? 'Validasi' : 'Absensi',
-      icon: userRole === 'operator' ? 'supervisor_account' : isTeacherTier ? 'fact_check' : 'checklist',
+      label: isAdminTier ? 'Wali & Piket' : isTeacherTier ? 'Validasi' : 'Absensi',
+      icon: isAdminTier ? 'supervisor_account' : isTeacherTier ? 'fact_check' : 'checklist',
       badge: isTeacherTier && pendingValidationCount > 0 ? pendingValidationCount : undefined,
     },
     {

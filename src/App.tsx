@@ -29,6 +29,8 @@ import { ValidasiGuruScreen } from './components/ValidasiGuruScreen';
 import { WaliKelasDashboard } from './components/WaliKelasDashboard';
 import { GuruPiketDashboard } from './components/GuruPiketDashboard';
 import { OperatorDashboard } from './components/OperatorDashboard';
+import { AdminDashboardView } from './components/AdminDashboardView';
+import { AdminPortal } from './components/admin/AdminPortal';
 
 export default function App() {
   const auth = useAuth();
@@ -89,7 +91,8 @@ export default function App() {
         avatarUrl: avatarOverride || auth.profile.avatar_url || (USER_PROFILES[supabaseRole] ?? USER_PROFILES.siswa).avatarUrl,
         role: supabaseRole,
         roleTitle:
-          supabaseRole === 'operator' ? 'Administrator Sekolah'
+          supabaseRole === 'superadmin' ? 'Kepala Sekolah / IT Admin'
+          : (supabaseRole === 'operator' || (supabaseRole as any) === 'admin') ? 'Tata Usaha / Operator'
           : auth.profile.is_wali_kelas ? `Wali Kelas ${auth.profile.wali_kelas?.nama || ''}`
           : auth.profile.is_guru_piket ? 'Guru Piket'
           : supabaseRole === 'guru' ? 'Guru Mata Pelajaran'
@@ -321,6 +324,25 @@ export default function App() {
     );
   }
 
+  // --- Admin TU & Super Admin Portal (UI-Sekolah) ---
+  const isAdminOrSuperadmin =
+    currentUser.role === 'operator' ||
+    (currentUser.role as any) === 'admin' ||
+    currentUser.role === 'superadmin';
+
+  if (isAdminOrSuperadmin && !isGuestPublic) {
+    return (
+      <AdminPortal
+        session={{
+          username: currentUser.identifier || 'admin_demo',
+          role: currentUser.role === 'superadmin' ? 'superadmin' : 'admin',
+          nama: currentUser.name || (currentUser.role === 'superadmin' ? 'Superadmin SIAP' : 'Tata Usaha / Operator'),
+        }}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
   // --- Main App ---
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-surface flex flex-col justify-between font-body text-on-surface">
@@ -343,11 +365,11 @@ export default function App() {
 
       <main className={`flex-1 w-full ${isGuestPublic ? 'pt-24' : 'pt-16'}`}>
         {currentTab === 'beranda' && (
-          currentUser.role === 'operator' ? (
-            <OperatorDashboard
-              user={currentUser}
+          (currentUser.role === 'operator' || (currentUser.role as any) === 'admin' || currentUser.role === 'superadmin') ? (
+            <AdminDashboardView
+              roleTitle={currentUser.roleTitle}
+              initialRoleMode={currentUser.role === 'superadmin' ? 'superadmin' : 'admin'}
               onLogout={handleLogout}
-              onShowToast={showToast}
             />
           ) : (
             <HomeScreen

@@ -28,6 +28,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     setPassword('Demo@2025');
   };
 
+  const handleQuickSuperadmin = () => {
+    setIdentifier('superadmin_sorong');
+    setPassword('Demo@2025');
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 relative overflow-hidden font-body">
       {/* Background Header Decoration */}
@@ -58,15 +63,25 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               Login ke Akun Anda
             </h2>
 
-            {/* Quick Fill Shortcut for TU */}
-            <button
-              type="button"
-              onClick={handleQuickOperator}
-              className="text-[10px] font-bold px-2 py-1 rounded-lg bg-sky-50 text-primary border border-sky-200 hover:bg-sky-100 transition active:scale-95"
-              title="Isi Akun Tata Usaha (Operator)"
-            >
-              Mode TU
-            </button>
+            {/* Quick Fill Shortcuts for Admin TU & Super Admin */}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleQuickOperator}
+                className="text-[10px] font-bold px-2 py-1 rounded-lg bg-sky-50 text-primary border border-sky-200 hover:bg-sky-100 transition active:scale-95 cursor-pointer"
+                title="Isi Akun Tata Usaha (Admin TU)"
+              >
+                🛠️ TU
+              </button>
+              <button
+                type="button"
+                onClick={handleQuickSuperadmin}
+                className="text-[10px] font-bold px-2 py-1 rounded-lg bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition active:scale-95 cursor-pointer"
+                title="Isi Akun Super Admin"
+              >
+                👑 Super
+              </button>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -139,9 +154,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </form>
 
           {/* Role info snippet */}
-          <div className="mt-4 pt-3 border-t border-slate-100 text-center">
+          <div className="mt-4 pt-3 border-t border-slate-100 text-center flex flex-col gap-1">
             <p className="text-[11px] text-slate-500">
-              Operator / Tata Usaha login dengan username: <strong className="text-primary font-mono">TU</strong> • sandi: <strong className="text-slate-700 font-mono">Demo@2025</strong>
+              Admin TU login: <strong className="text-primary font-mono">TU</strong> • sandi: <strong className="text-slate-700 font-mono">Demo@2025</strong>
+            </p>
+            <p className="text-[11px] text-purple-700 font-medium">
+              Super Admin login: <strong className="font-mono">superadmin_sorong</strong> • sandi: <strong className="font-mono">Demo@2025</strong>
             </p>
           </div>
         </div>

@@ -97,6 +97,38 @@ export function useAuth() {
     let finalUsername = identifier.trim();
     const cleanLower = finalUsername.toLowerCase();
 
+    // Superadmin bypass / demo root fallback
+    if (cleanLower === 'superadmin' || cleanLower === 'superadmin_sorong' || cleanLower === 'kepsek') {
+      const superProfile: Profile = {
+        id: 'superadmin-root-0',
+        username: 'superadmin_sorong',
+        nama: 'Superadmin SIAP (Kepala Sekolah)',
+        role: 'superadmin' as any,
+        is_sekretaris: false,
+        kelas_id: null,
+        must_change_password: false,
+        avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      };
+      setState({ profile: superProfile, loading: false, error: null });
+      return { profile: superProfile, error: null };
+    }
+
+    // Admin TU bypass / demo fallback
+    if (cleanLower === 'tu' || cleanLower === 'admin_demo' || cleanLower === 'admin') {
+      const tuProfile: Profile = {
+        id: 'admin-tu-root-0',
+        username: 'admin_demo',
+        nama: 'Administrator SMKN 1 (Tata Usaha)',
+        role: 'operator' as any,
+        is_sekretaris: false,
+        kelas_id: null,
+        must_change_password: false,
+        avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
+      };
+      setState({ profile: tuProfile, loading: false, error: null });
+      return { profile: tuProfile, error: null };
+    }
+
     // Resolve name or NISN or TU to username
     let { data: profileLookup } = await supabase
       .from('profiles')
@@ -159,8 +191,9 @@ export function useAuth() {
     return null;
   }, [loadProfile]);
 
-  // 6-tier role mapping
+  // Role mapping
   const resolveRole = (profile: Profile): UserRole => {
+    if ((profile.role as string) === 'superadmin') return 'superadmin';
     if (profile.role === 'operator' || (profile.role as any) === 'admin') return 'operator';
     if (profile.role === 'guru_piket') return 'guru_piket';
     if (profile.role === 'wali_kelas') return 'wali_kelas';

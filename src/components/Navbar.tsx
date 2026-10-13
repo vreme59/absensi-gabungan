@@ -18,9 +18,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [showRoleMenu, setShowRoleMenu] = useState(false);
 
   const tabLabels: Record<string, string> = {
-    beranda: 'Beranda',
+    beranda: (user.role === 'operator' || (user.role as any) === 'admin' || user.role === 'superadmin') ? (user.role === 'superadmin' ? 'Super Admin SIAP' : 'Admin TU') : 'Beranda',
     jadwal: 'Jadwal',
-    absensi: user.role === 'guru' ? 'Validasi Mapel' : 'Absensi',
+    absensi: user.role === 'guru' ? 'Validasi Mapel' : (user.role === 'operator' || (user.role as any) === 'admin' || user.role === 'superadmin') ? 'Wali & Piket' : 'Absensi',
     profil: 'Profil Pengguna',
     'wali-kelas': 'Wali Kelas',
     'guru-piket': 'Guru Piket',
