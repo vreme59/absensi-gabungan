@@ -18,6 +18,7 @@ import { ExportKehadiranModal } from './ExportKehadiranModal';
 import { ScheduleModal } from './ScheduleModal';
 import { PrintModal } from './PrintModal';
 import { NotificationsModal } from './NotificationsModal';
+import { WhatsAppGatewayView } from './admin/WhatsAppGatewayView';
 
 interface AdminDashboardViewProps {
   onOpenScheduleManager?: () => void;
@@ -506,7 +507,23 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
               }`}
             >
               <span>⚙️</span>
-              <span>Kebijakan Root</span>
+              <span>Kebijakan Sekolah</span>
+            </button>
+          )}
+
+          {/* Superadmin Exclusive Tabs: WhatsApp Gateway (QR Code) - TEPAT DI SAMPING KEBIJAKAN SEKOLAH */}
+          {isSuperadmin && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('whatsapp')}
+              className={`px-3 py-2 rounded-xl text-[11px] font-bold transition-all whitespace-nowrap flex items-center gap-1 cursor-pointer ${
+                activeTab === 'whatsapp'
+                  ? 'bg-[#075e54] text-white shadow-xs'
+                  : 'text-[#404751] hover:bg-[#f2f4f6]'
+              }`}
+            >
+              <span>📱</span>
+              <span>Integrasi WA (QR)</span>
             </button>
           )}
 
@@ -1073,6 +1090,13 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
               </div>
             </div>
           </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* TAB WHATSAPP GATEWAY (SUPERADMIN): QR CODE & LOG PANGGIL GURU     */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {isSuperadmin && activeTab === 'whatsapp' && (
+          <WhatsAppGatewayView onShowFeedback={showFeedback} />
         )}
 
         {/* ═══════════════════════════════════════════════════════════════════ */}

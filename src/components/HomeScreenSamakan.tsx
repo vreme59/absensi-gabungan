@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 import React, { useState, useEffect } from 'react';
 import { SCHEDULES_BY_DAY } from "../data/samakan/scheduleData";
 import { UserProfile, StudentAttendance, ClassAttendanceSummary, TeacherCallAlert } from '../types';
+import { PanggilGuruModal } from './PanggilGuruModal';
 
 interface HomeScreenProps {
   user: UserProfile;
@@ -334,6 +335,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ( {
   const [showIzinModal, setShowIzinModal] = useState(false);
   const [showRekapModal, setShowRekapModal] = useState(false);
   const [showBanner, setShowBanner] = useState(teacherAlert.isActive);
+  const [showPanggilGuruModal, setShowPanggilGuruModal] = useState(false);
   const [localStudents, setLocalStudents] = useState<StudentAttendance[]>(students);
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -666,17 +668,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ( {
               </span>
             </button>
 
-            {/* Action 2: Panggil Guru (Emergency button) */}
+            {/* Action 2: Panggil Guru (Integrasi WhatsApp) */}
             <button
               onClick={() => {
-                setShowBanner(true);
-                handleTriggerTeacherCall();
+                setShowPanggilGuruModal(true);
               }}
               className="flex flex-col items-center group active:scale-95 transition-transform text-center"
               type="button"
             >
-              <div className="w-12 h-12 p-3 rounded-2xl bg-amber-50 flex items-center justify-center text-tertiary-container group-hover:bg-tertiary-container group-hover:text-white transition-colors shadow-sm">
-                <span className="material-symbols-outlined notranslate text-[24px]">emergency_home</span>
+              <div className="w-12 h-12 p-3 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-700 group-hover:bg-[#075e54] group-hover:text-white transition-colors shadow-sm">
+                <span className="material-symbols-outlined notranslate text-[24px]">phone_in_talk</span>
               </div>
               <span className="font-label-sm text-xs text-on-surface font-semibold mt-1.5 leading-tight line-clamp-2">
                 Panggil Guru
@@ -742,12 +743,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ( {
 
             <div className="flex items-center gap-2 pt-1">
               <button
-                onClick={handleTriggerTeacherCall}
-                className="flex-1 py-2.5 px-3 rounded-xl bg-white text-tertiary font-bold text-xs shadow-md hover:bg-amber-50 active:scale-95 transition-all flex items-center justify-center gap-1.5"
+                onClick={() => setShowPanggilGuruModal(true)}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-white text-emerald-800 font-bold text-xs shadow-md hover:bg-emerald-50 active:scale-95 transition-all flex items-center justify-center gap-1.5"
                 type="button"
               >
-                <span className="material-symbols-outlined notranslate text-[18px]">cell_tower</span>
-                Kirim Sinyal Panggil Guru 🔔
+                <span className="material-symbols-outlined notranslate text-[18px]">phone_in_talk</span>
+                Panggil Guru via WhatsApp 📲
               </button>
               <button
                 onClick={() => setShowBanner(false)}
@@ -1163,6 +1164,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ( {
           </div>
         </div>
       )}
+
+      {/* Modal Panggil Guru Terintegrasi WhatsApp */}
+      <PanggilGuruModal
+        isOpen={showPanggilGuruModal}
+        onClose={() => setShowPanggilGuruModal(false)}
+        initialTeacherName="Budi Santoso, S.Kom"
+        initialClassName={(user as any).kelas?.nama || 'XII TKJ 1'}
+        initialRoomName="Lab Komputer 2"
+        studentName={user.name || 'Cindy Laura'}
+        onSuccess={(msg) => {
+          onSendTeacherCall();
+          onShowToast('Panggilan Guru Terkirim! 📲', msg, 'success');
+        }}
+      />
     </div>
   );
 };

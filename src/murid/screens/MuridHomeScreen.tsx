@@ -4,12 +4,14 @@ import { UserProfile } from '../../types';
 import { MuridHomeScreenProps } from '../types';
 import { SCHEDULES_BY_DAY } from '../../data/samakan/scheduleData';
 import { getPerangkatKelas } from '../../utils/perangkatKelasManager';
+import { PanggilGuruModal } from '../../components/PanggilGuruModal';
 
 export const MuridHomeScreen: React.FC<MuridHomeScreenProps> = ({
   user,
   onNavigateTab,
   onShowToast,
 }) => {
+  const [showPanggilModal, setShowPanggilModal] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeSession, setActiveSession] = useState<any>(null);
   const [todayAttendanceStatus, setTodayAttendanceStatus] = useState<'Hadir' | 'Sakit' | 'Izin' | 'Alfa' | 'Belum Presensi'>('Hadir');
@@ -295,32 +297,46 @@ export const MuridHomeScreen: React.FC<MuridHomeScreenProps> = ({
         )}
 
         {/* Quick Actions Grid */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-2.5">
           <button
             type="button"
             onClick={() => onNavigateTab('absensi')}
-            className="p-4 rounded-2xl bg-white border border-slate-100 shadow-xs hover:border-primary/30 transition-all flex flex-col items-start gap-2 text-left active:scale-95 group"
+            className="p-3 rounded-2xl bg-white border border-slate-100 shadow-xs hover:border-primary/30 transition-all flex flex-col items-center gap-1.5 text-center active:scale-95 group"
           >
             <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
               <span className="material-symbols-outlined notranslate text-[22px]">checklist</span>
             </div>
             <div>
-              <h4 className="font-headline font-bold text-sm text-slate-800">Absensi Kelas</h4>
-              <p className="text-[11px] text-slate-500 mt-0.5">Cek presensi teman sekelas</p>
+              <h4 className="font-headline font-bold text-xs text-slate-800">Absensi</h4>
+              <p className="text-[10px] text-slate-400">Kelas</p>
             </div>
           </button>
 
           <button
             type="button"
             onClick={() => onNavigateTab('jadwal')}
-            className="p-4 rounded-2xl bg-white border border-slate-100 shadow-xs hover:border-primary/30 transition-all flex flex-col items-start gap-2 text-left active:scale-95 group"
+            className="p-3 rounded-2xl bg-white border border-slate-100 shadow-xs hover:border-primary/30 transition-all flex flex-col items-center gap-1.5 text-center active:scale-95 group"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
               <span className="material-symbols-outlined notranslate text-[22px]">calendar_month</span>
             </div>
             <div>
-              <h4 className="font-headline font-bold text-sm text-slate-800">Jadwal Pelajaran</h4>
-              <p className="text-[11px] text-slate-500 mt-0.5">Roster mingguan kelas</p>
+              <h4 className="font-headline font-bold text-xs text-slate-800">Jadwal</h4>
+              <p className="text-[10px] text-slate-400">Mapel</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowPanggilModal(true)}
+            className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 shadow-xs hover:border-emerald-400 transition-all flex flex-col items-center gap-1.5 text-center active:scale-95 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center group-hover:bg-emerald-700 transition-colors shadow-xs">
+              <span className="material-symbols-outlined notranslate text-[22px]">phone_in_talk</span>
+            </div>
+            <div>
+              <h4 className="font-headline font-bold text-xs text-emerald-950">Panggil Guru</h4>
+              <p className="text-[10px] text-emerald-700 font-semibold">WhatsApp</p>
             </div>
           </button>
         </div>
@@ -375,9 +391,21 @@ export const MuridHomeScreen: React.FC<MuridHomeScreenProps> = ({
               <span className="text-slate-400 font-medium">Ketua Kelas:</span>
               <span className="font-bold text-slate-800">{perangkatKelas.ketuaKelasNama || 'Ketua Kelas'}</span>
             </p>
-          </div>
         </div>
       </div>
+
+      {/* Modal Panggil Guru WhatsApp */}
+      <PanggilGuruModal
+        isOpen={showPanggilModal}
+        onClose={() => setShowPanggilModal(false)}
+        initialTeacherName={activeSession?.guru || 'Budi Santoso, S.Kom'}
+        initialClassName={currentKelasNama || 'XII TKJ 1'}
+        initialRoomName={activeSession?.ruang || 'Lab Komputer 2'}
+        studentName={user.name || 'Cindy Laura'}
+        onSuccess={(msg) => {
+          onShowToast('Panggilan Terkirim! 📲', msg, 'success');
+        }}
+      />
     </div>
   );
 };
