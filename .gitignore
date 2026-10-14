@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+.wa-session/
+storage/
+*.session

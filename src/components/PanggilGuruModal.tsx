@@ -51,10 +51,10 @@ export const PanggilGuruModal: React.FC<PanggilGuruModalProps> = ({
 
   const previewMessage = `Halo Pak/Ibu Guru ${teacherName}, Anda dipanggil oleh kelas ${className} untuk segera hadir di ${roomName}.\n\nWaktu Panggilan: ${currentWIT}\nDipanggil oleh: ${studentName}\n\nMohon kehadirannya di kelas, terima kasih.\n_Sistem Informasi Presensi SMKN 1 Sorong_`;
 
-  const handleSendAutomatic = () => {
+  const handleSendAutomatic = async () => {
     setIsSending(true);
-    setTimeout(() => {
-      const result = sendPanggilGuruWhatsApp({
+    try {
+      const result = await sendPanggilGuruWhatsApp({
         teacherName,
         className,
         roomName,
@@ -73,11 +73,14 @@ export const PanggilGuruModal: React.FC<PanggilGuruModalProps> = ({
       setTimeout(() => {
         onClose();
       }, 1800);
-    }, 700);
+    } catch (err) {
+      console.error(err);
+      setIsSending(false);
+    }
   };
 
-  const handleOpenDirectWhatsApp = () => {
-    const result = sendPanggilGuruWhatsApp({
+  const handleOpenDirectWhatsApp = async () => {
+    const result = await sendPanggilGuruWhatsApp({
       teacherName,
       className,
       roomName,
