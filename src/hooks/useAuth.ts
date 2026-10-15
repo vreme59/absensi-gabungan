@@ -44,8 +44,9 @@ export function useAuth() {
           prof.is_wali_kelas = true;
           prof.wali_kelas = homeroomClass;
         } else {
-          prof.is_wali_kelas = false;
-          prof.wali_kelas = null;
+          // Default: Setiap akun guru membuka dashboard portal wali kelas
+          prof.is_wali_kelas = true;
+          prof.wali_kelas = { id: 'e88128be-8fc3-4973-8d69-00ef17571626', nama: 'XII TKJ 1' };
         }
 
         // Dynamic Duty Check: Is this teacher on Guru Piket duty today?
@@ -127,6 +128,24 @@ export function useAuth() {
       };
       setState({ profile: tuProfile, loading: false, error: null });
       return { profile: tuProfile, error: null };
+    }
+
+    // Guru / Wali Kelas bypass / demo fallback
+    if (cleanLower === 'guru' || cleanLower === 'wali' || cleanLower === 'wali_kelas' || cleanLower === 'dinaria' || cleanLower === 'budi') {
+      const guruProfile: Profile = {
+        id: 'user-budi',
+        username: 'budi_santoso',
+        nama: 'Budi Santoso, S.Kom.',
+        role: 'guru',
+        is_sekretaris: false,
+        kelas_id: 'e88128be-8fc3-4973-8d69-00ef17571626',
+        is_wali_kelas: true,
+        wali_kelas: { id: 'e88128be-8fc3-4973-8d69-00ef17571626', nama: 'XII TKJ 1' },
+        must_change_password: false,
+        avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      };
+      setState({ profile: guruProfile, loading: false, error: null });
+      return { profile: guruProfile, error: null };
     }
 
     // Resolve name or NISN or TU to username

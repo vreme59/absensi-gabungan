@@ -33,6 +33,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     setPassword('Demo@2025');
   };
 
+  const handleQuickGuru = () => {
+    setIdentifier('guru');
+    setPassword('Demo@2025');
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 relative overflow-hidden font-body">
       {/* Background Header Decoration */}
@@ -63,8 +68,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               Login ke Akun Anda
             </h2>
 
-            {/* Quick Fill Shortcuts for Admin TU & Super Admin */}
-            <div className="flex items-center gap-1.5">
+            {/* Quick Fill Shortcuts for Admin TU, Super Admin & Wali Kelas */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <button
+                type="button"
+                onClick={handleQuickGuru}
+                className="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition active:scale-95 cursor-pointer shadow-xs"
+                title="Isi Akun Guru / Wali Kelas"
+              >
+                👨‍🏫 Wali Kelas
+              </button>
               <button
                 type="button"
                 onClick={handleQuickOperator}
@@ -155,6 +168,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
           {/* Role info snippet */}
           <div className="mt-4 pt-3 border-t border-slate-100 text-center flex flex-col gap-1">
+            <p className="text-[11px] text-emerald-800 font-medium">
+              Guru / Wali Kelas login: <strong className="font-mono text-emerald-900">guru</strong> • sandi: <strong className="font-mono text-slate-700">Demo@2025</strong>
+            </p>
             <p className="text-[11px] text-slate-500">
               Admin TU login: <strong className="text-primary font-mono">TU</strong> • sandi: <strong className="text-slate-700 font-mono">Demo@2025</strong>
             </p>

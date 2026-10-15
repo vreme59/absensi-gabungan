@@ -94,16 +94,16 @@ export default function App() {
         roleTitle:
           supabaseRole === 'superadmin' ? 'Kepala Sekolah / IT Admin'
           : (supabaseRole === 'operator' || (supabaseRole as any) === 'admin') ? 'Tata Usaha / Operator'
-          : auth.profile.is_wali_kelas ? `Wali Kelas ${auth.profile.wali_kelas?.nama || ''}`
+          : (supabaseRole === 'guru' || supabaseRole === 'wali_kelas' || auth.profile.is_wali_kelas)
+            ? `Wali Kelas • ${auth.profile.wali_kelas?.nama || 'XII TKJ 1'}`
           : auth.profile.is_guru_piket ? 'Guru Piket'
-          : supabaseRole === 'guru' ? 'Guru Mata Pelajaran'
           : auth.profile.is_sekretaris ? 'Sekretaris Kelas'
           : 'Siswa',
         identifier: auth.profile.username,
         kelas_id: auth.profile.kelas_id || auth.profile.wali_kelas?.id || 'e88128be-8fc3-4973-8d69-00ef17571626',
         kelas: (auth.profile as any).kelas || (auth.profile.wali_kelas ? { id: auth.profile.wali_kelas.id, nama: auth.profile.wali_kelas.nama } : { id: 'e88128be-8fc3-4973-8d69-00ef17571626', nama: 'XII TKJ 1' }),
-        is_wali_kelas: auth.profile.is_wali_kelas,
-        wali_kelas: auth.profile.wali_kelas ? { id: auth.profile.wali_kelas.id, nama: auth.profile.wali_kelas.nama } : undefined,
+        is_wali_kelas: Boolean(auth.profile.is_wali_kelas || supabaseRole === 'guru' || supabaseRole === 'wali_kelas'),
+        wali_kelas: auth.profile.wali_kelas || { id: 'e88128be-8fc3-4973-8d69-00ef17571626', nama: 'XII TKJ 1' },
         is_guru_piket: auth.profile.is_guru_piket,
       }
     : {
