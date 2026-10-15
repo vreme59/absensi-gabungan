@@ -380,12 +380,6 @@ export default function App() {
               initialRoleMode={currentUser.role === 'superadmin' ? 'superadmin' : 'admin'}
               onLogout={handleLogout}
             />
-          ) : (currentUser.role === 'guru' || currentUser.role === 'wali_kelas' || currentUser.is_wali_kelas) ? (
-            <WaliKelasDashboard
-              user={currentUser}
-              onNavigateHome={() => setCurrentTab('beranda')}
-              onShowToast={showToast}
-            />
           ) : (
             <HomeScreen
               user={currentUser}

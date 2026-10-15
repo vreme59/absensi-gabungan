@@ -22,7 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const tabLabels: Record<string, string> = {
     beranda: (user.role === 'operator' || (user.role as any) === 'admin' || user.role === 'superadmin')
       ? (user.role === 'superadmin' ? 'Super Admin SIAP' : 'Admin TU')
-      : isTeacherTier ? 'Portal Wali Kelas' : 'Beranda',
+      : 'Beranda',
     jadwal: 'Jadwal',
     absensi: isTeacherTier ? 'Perangkat Kelas' : (user.role === 'operator' || (user.role as any) === 'admin' || user.role === 'superadmin') ? 'Wali & Piket' : 'Absensi',
     profil: 'Profil Pengguna',

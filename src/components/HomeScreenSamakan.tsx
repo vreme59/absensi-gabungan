@@ -199,10 +199,10 @@ export const HomeScreenGuru: React.FC<HomeScreenProps> = ({ user, onNavigateToTa
               onClick={() => onNavigateToTab('absensi')}
               className="flex flex-col items-center gap-1.5 group cursor-pointer flex-1 min-w-[64px]"
             >
-              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-active:scale-95 transition-transform border border-emerald-100 shadow-xs">
-                <span className="material-symbols-outlined notranslate">verified</span>
+              <div className="w-12 h-12 bg-sky-50 text-[#005fa0] rounded-2xl flex items-center justify-center group-active:scale-95 transition-transform border border-sky-100 shadow-xs">
+                <span className="material-symbols-outlined notranslate">assignment_ind</span>
               </div>
-              <span className="text-[10px] font-bold text-slate-700 text-center leading-tight">Validasi<br/>Mapel</span>
+              <span className="text-[10px] font-bold text-slate-700 text-center leading-tight">Perangkat<br/>Kelas</span>
             </button>
 
             {/* HANYA MUNCUL JIKA USER ADALAH WALI KELAS */}
