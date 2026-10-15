@@ -294,32 +294,37 @@ export async function sendPanggilGuruWhatsApp(params: SendPanggilGuruParams): Pr
   const timestamp = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) + ', ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIT';
 
   let sentViaBot = false;
+  let botError: string | undefined = undefined;
 
-  // Try real bot dispatch if backend is active and connected
-  if (config.status === 'connected') {
-    try {
-      const res = await fetch('/api/wa/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phone: normalizedPhone,
-          teacherName: params.teacherName,
-          className: params.className,
-          roomName: room,
-          senderName: sender,
-          text: messageText,
-        }),
-      });
+  // Always attempt real bot dispatch first
+  try {
+    const res = await fetch('/api/wa/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: normalizedPhone,
+        teacherName: params.teacherName,
+        className: params.className,
+        roomName: room,
+        senderName: sender,
+        text: messageText,
+      }),
+    });
 
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success) {
-          sentViaBot = true;
-        }
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success) {
+        sentViaBot = true;
+      } else {
+        botError = json.error;
       }
-    } catch (err) {
-      console.warn('Real bot send failed, fallback to direct wa.me', err);
+    } else {
+      const errJson = await res.json().catch(() => ({}));
+      botError = errJson.error || `Server HTTP status ${res.status}`;
     }
+  } catch (err: any) {
+    console.warn('Real bot send attempt failed:', err);
+    botError = err?.message || 'Server bot WhatsApp tidak dapat dihubungi';
   }
 
   const newLog: WhatsAppMessageLog = {
@@ -348,5 +353,6 @@ export async function sendPanggilGuruWhatsApp(params: SendPanggilGuruParams): Pr
     directWaUrl,
     timestamp,
     viaBot: sentViaBot,
+    error: botError,
   };
 }

@@ -37,10 +37,9 @@ class WhatsAppGatewayManager {
     errorMessage: null,
   };
   private isInitializing = false;
-  private reconnectAttempts = 0;
+  private reconnectTimeout: NodeJS.Timeout | null = null;
 
   constructor() {
-    // Ensure session directory exists
     if (!fs.existsSync(AUTH_DIR)) {
       try {
         fs.mkdirSync(AUTH_DIR, { recursive: true });
@@ -55,11 +54,37 @@ class WhatsAppGatewayManager {
   }
 
   public async init(): Promise<void> {
-    if (this.isInitializing) return;
+    if (this.isInitializing) {
+      console.log('[WA-Gateway] Init already in progress, skipping...');
+      return;
+    }
+
+    if (this.sock && this.state.status === 'connected') {
+      console.log('[WA-Gateway] Already connected as', this.state.connectedPhone);
+      return;
+    }
+
     this.isInitializing = true;
     this.state.status = 'connecting';
-    this.state.lastUpdate = new Date().toLocaleTimeString('id-ID');
+    this.state.lastUpdate = new Date().toLocaleTimeString('id-ID') + ' WIT';
     this.state.errorMessage = null;
+
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+
+    // Safely close any existing socket instance first to avoid conflict (Error 440)
+    if (this.sock) {
+      try {
+        this.sock.ev.removeAllListeners('connection.update');
+        this.sock.ev.removeAllListeners('creds.update');
+        this.sock.end(undefined);
+      } catch (e) {
+        // ignore
+      }
+      this.sock = null;
+    }
 
     try {
       const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
@@ -103,7 +128,6 @@ class WhatsAppGatewayManager {
         }
 
         if (connection === 'open') {
-          this.reconnectAttempts = 0;
           this.state.status = 'connected';
           this.state.qr = null;
           this.state.qrDataUrl = null;
@@ -111,7 +135,7 @@ class WhatsAppGatewayManager {
           this.state.errorMessage = null;
 
           const user = socket.user;
-          const phoneRaw = user?.id ? user.id.split(':')[0].split('@')[0] : '081248957075';
+          const phoneRaw = user?.id ? user.id.split(':')[0].split('@')[0] : '6281248957075';
           this.state.connectedPhone = phoneRaw;
           this.state.connectedName = user?.name || 'Admin SMKN 1 Sorong';
           this.state.connectedAt = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIT';
@@ -122,23 +146,38 @@ class WhatsAppGatewayManager {
 
         if (connection === 'close') {
           const statusCode = (lastDisconnect?.error as any)?.output?.statusCode;
-          const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-          console.log(`[WA-Gateway] Connection closed (status: ${statusCode}). Reconnect? ${shouldReconnect}`);
+          const isLoggedOut = statusCode === DisconnectReason.loggedOut;
+          const isReplaced = statusCode === DisconnectReason.connectionReplaced;
+
+          console.log(`[WA-Gateway] Connection closed (statusCode: ${statusCode}, isLoggedOut: ${isLoggedOut}, isReplaced: ${isReplaced})`);
 
           this.state.status = 'disconnected';
           this.state.qr = null;
           this.state.qrDataUrl = null;
           this.state.lastUpdate = new Date().toLocaleTimeString('id-ID') + ' WIT';
 
-          if (shouldReconnect && this.reconnectAttempts < 5) {
-            this.reconnectAttempts++;
-            setTimeout(() => {
-              this.isInitializing = false;
-              this.init();
-            }, 3000);
-          } else if (statusCode === DisconnectReason.loggedOut) {
+          if (isLoggedOut) {
             this.state.errorMessage = 'Sesi WhatsApp dikeluarkan (Logged Out). Silakan scan ulang.';
             this.clearAuthFiles();
+          } else if (isReplaced) {
+            this.state.errorMessage = 'Sesi dibuka di tempat lain. Menunggu 10 detik sebelum menghubungkan kembali...';
+            // Wait 10 seconds before attempting reconnect on 440 to avoid fast reconnect collision
+            if (!this.reconnectTimeout) {
+              this.reconnectTimeout = setTimeout(() => {
+                this.reconnectTimeout = null;
+                this.isInitializing = false;
+                this.init();
+              }, 10000);
+            }
+          } else {
+            // General drop (network timeout, 515 restart required, etc.)
+            if (!this.reconnectTimeout) {
+              this.reconnectTimeout = setTimeout(() => {
+                this.reconnectTimeout = null;
+                this.isInitializing = false;
+                this.init();
+              }, 4000);
+            }
           }
         }
       });
@@ -154,7 +193,6 @@ class WhatsAppGatewayManager {
   public async requestPairingCode(phoneNumber: string): Promise<string> {
     if (!this.sock) {
       await this.init();
-      // wait 2 seconds for socket initialization
       await new Promise((r) => setTimeout(r, 2000));
     }
 
@@ -181,34 +219,42 @@ class WhatsAppGatewayManager {
     if (!this.sock || this.state.status !== 'connected') {
       return {
         success: false,
-        error: 'WhatsApp Bot belum terhubung (status: ' + this.state.status + '). Silakan scan QR code di Super Admin terlebih dahulu.',
+        error: `Bot WhatsApp belum terhubung (Status: ${this.state.status}). Pastikan sudah scan QR di Super Admin.`,
       };
     }
 
     const cleanPhone = recipientPhone.replace(/\D/g, '');
     const intlPhone = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
-    const jid = `${intlPhone}@s.whatsapp.net`;
+    const targetJid = `${intlPhone}@s.whatsapp.net`;
 
     try {
-      const result = await this.sock.sendMessage(jid, { text });
-      console.log(`[WA-Gateway] Message dispatched to ${jid}, id: ${result?.key?.id}`);
+      // Send message via Baileys socket
+      const sentMessage = await this.sock.sendMessage(targetJid, { text });
+      console.log(`[WA-Gateway] Message successfully dispatched to ${targetJid}! MessageId: ${sentMessage?.key?.id}`);
       return {
         success: true,
-        messageId: result?.key?.id || `msg-${Date.now()}`,
+        messageId: sentMessage?.key?.id || `msg-${Date.now()}`,
       };
     } catch (err: any) {
-      console.error('[WA-Gateway] Failed to send message:', err);
+      console.error(`[WA-Gateway] Failed to send message to ${targetJid}:`, err);
       return {
         success: false,
-        error: err?.message || 'Gagal mengirim pesan WhatsApp',
+        error: err?.message || 'Gagal mengirim pesan WhatsApp ke nomor guru.',
       };
     }
   }
 
   public async logout(): Promise<void> {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+
     try {
       if (this.sock) {
         await this.sock.logout().catch(() => {});
+        this.sock.ev.removeAllListeners('connection.update');
+        this.sock.ev.removeAllListeners('creds.update');
         this.sock.end(undefined);
         this.sock = null;
       }
@@ -227,18 +273,23 @@ class WhatsAppGatewayManager {
       lastUpdate: new Date().toLocaleTimeString('id-ID') + ' WIT',
       errorMessage: null,
     };
-    this.reconnectAttempts = 0;
     this.isInitializing = false;
   }
 
   public async restart(): Promise<void> {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+
     try {
       if (this.sock) {
+        this.sock.ev.removeAllListeners('connection.update');
+        this.sock.ev.removeAllListeners('creds.update');
         this.sock.end(undefined);
         this.sock = null;
       }
     } catch (e) {}
-    this.reconnectAttempts = 0;
     this.isInitializing = false;
     await this.init();
   }

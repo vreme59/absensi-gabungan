@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   getWhatsAppConfig,
+  fetchLiveWhatsAppStatus,
   sendPanggilGuruWhatsApp,
   WhatsAppGatewayConfig,
 } from '../services/whatsappService';
@@ -30,6 +31,7 @@ export const PanggilGuruModal: React.FC<PanggilGuruModalProps> = ({
   const [targetPhone, setTargetPhone] = useState('0812-4895-7075');
   const [isSending, setIsSending] = useState(false);
   const [isSuccessSent, setIsSuccessSent] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'warning' | 'error'; text: string } | null>(null);
   const [waConfig, setWaConfig] = useState<WhatsAppGatewayConfig>(getWhatsAppConfig());
 
   useEffect(() => {
@@ -37,11 +39,15 @@ export const PanggilGuruModal: React.FC<PanggilGuruModalProps> = ({
       setTeacherName(initialTeacherName);
       setClassName(initialClassName);
       setRoomName(initialRoomName);
-      const conf = getWhatsAppConfig();
-      setWaConfig(conf);
-      setTargetPhone(conf.defaultTeacherPhone || '0812-4895-7075');
       setIsSuccessSent(false);
       setIsSending(false);
+      setFeedback(null);
+
+      // Fetch live status from backend so we know if bot is connected
+      fetchLiveWhatsAppStatus().then((conf) => {
+        setWaConfig(conf);
+        setTargetPhone(conf.defaultTeacherPhone || '0812-4895-7075');
+      });
     }
   }, [isOpen, initialTeacherName, initialClassName, initialRoomName]);
 
@@ -53,6 +59,8 @@ export const PanggilGuruModal: React.FC<PanggilGuruModalProps> = ({
 
   const handleSendAutomatic = async () => {
     setIsSending(true);
+    setFeedback(null);
+
     try {
       const result = await sendPanggilGuruWhatsApp({
         teacherName,
@@ -64,18 +72,48 @@ export const PanggilGuruModal: React.FC<PanggilGuruModalProps> = ({
       });
 
       setIsSending(false);
-      setIsSuccessSent(true);
 
-      if (onSuccess) {
-        onSuccess(`Panggilan WhatsApp berhasil dikirim ke ${teacherName} (${result.phone})!`);
+      if (result.viaBot) {
+        setIsSuccessSent(true);
+        setFeedback({
+          type: 'success',
+          text: `✅ Pesan WhatsApp otomatis BERHASIL terkirim ke HP Guru (${result.phone}) via Bot!`,
+        });
+
+        if (onSuccess) {
+          onSuccess(`Panggilan WhatsApp berhasil dikirim ke ${teacherName} (${result.phone})!`);
+        }
+
+        setTimeout(() => {
+          onClose();
+        }, 2200);
+      } else {
+        // Bot is not connected or in cloud preview: open direct WhatsApp link so message REALLY goes to teacher's WA
+        setFeedback({
+          type: 'warning',
+          text: `Bot WhatsApp belum terhubung. Mengalihkan ke WhatsApp langsung (wa.me) ke nomor ${result.phone}...`,
+        });
+
+        window.open(result.directWaUrl, '_blank', 'noopener,noreferrer');
+
+        if (onSuccess) {
+          onSuccess(`Membuka WhatsApp ke nomor ${result.phone}...`);
+        }
+
+        setTimeout(() => {
+          onClose();
+        }, 2500);
       }
-
-      setTimeout(() => {
-        onClose();
-      }, 1800);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       setIsSending(false);
+      // Fallback direct WA link on exception
+      const clean = targetPhone.replace(/\D/g, '').replace(/^0/, '62');
+      window.open(`https://wa.me/${clean}?text=${encodeURIComponent(previewMessage)}`, '_blank', 'noopener,noreferrer');
+      setFeedback({
+        type: 'error',
+        text: 'Gagal kirim otomatis. Membuka chat WhatsApp langsung...',
+      });
     }
   };
 
@@ -97,6 +135,8 @@ export const PanggilGuruModal: React.FC<PanggilGuruModalProps> = ({
     }
     onClose();
   };
+
+  const isBotConnected = waConfig.status === 'connected';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -134,13 +174,21 @@ export const PanggilGuruModal: React.FC<PanggilGuruModalProps> = ({
         <div className="p-4 sm:p-5 overflow-y-auto space-y-4 text-slate-800 text-xs">
           
           {/* Status Badge Gateway */}
-          <div className="flex items-center justify-between p-2.5 rounded-2xl bg-emerald-50 border border-emerald-200/80">
+          <div className={`flex items-center justify-between p-2.5 rounded-2xl border ${
+            isBotConnected
+              ? 'bg-emerald-50 border-emerald-200/80'
+              : 'bg-amber-50 border-amber-200/80'
+          }`}>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-200" />
-              <span className="text-[11px] font-bold text-emerald-900">
-                {waConfig.status === 'connected'
-                  ? 'WhatsApp Gateway Server: Terhubung 🟢'
-                  : 'WhatsApp Gateway Server: Standby / Direct 🟡'}
+              <span className={`w-2.5 h-2.5 rounded-full ${
+                isBotConnected ? 'bg-emerald-500 ring-4 ring-emerald-200' : 'bg-amber-500 ring-4 ring-amber-200'
+              }`} />
+              <span className={`text-[11px] font-bold ${
+                isBotConnected ? 'text-emerald-900' : 'text-amber-900'
+              }`}>
+                {isBotConnected
+                  ? `Bot WhatsApp: Terhubung Online (${waConfig.connectedPhone || 'Aktif'}) 🟢`
+                  : 'Bot WhatsApp: Standby (Direct wa.me Aktif) 🟡'}
               </span>
             </div>
             <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded-md text-emerald-800 border border-emerald-200 font-bold">
@@ -231,17 +279,24 @@ export const PanggilGuruModal: React.FC<PanggilGuruModalProps> = ({
             </div>
           </div>
 
-          {/* Success State Notification */}
-          {isSuccessSent && (
-            <div className="p-3 bg-emerald-100 border border-emerald-300 rounded-2xl flex items-center gap-2.5 animate-in slide-in-from-top-2">
-              <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined notranslate text-[20px]">check</span>
+          {/* Feedback / Notification */}
+          {feedback && (
+            <div className={`p-3 rounded-2xl flex items-center gap-2.5 animate-in slide-in-from-top-2 border ${
+              feedback.type === 'success'
+                ? 'bg-emerald-100 border-emerald-300 text-emerald-900'
+                : feedback.type === 'warning'
+                ? 'bg-amber-100 border-amber-300 text-amber-900'
+                : 'bg-rose-100 border-rose-300 text-rose-900'
+            }`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                feedback.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'
+              }`}>
+                <span className="material-symbols-outlined notranslate text-[20px]">
+                  {feedback.type === 'success' ? 'check' : 'warning'}
+                </span>
               </div>
               <div>
-                <p className="text-[12px] font-bold text-emerald-900">Panggilan Terkirim!</p>
-                <p className="text-[10px] text-emerald-700">
-                  Pesan berhasil dikirimkan ke WhatsApp {teacherName} ({targetPhone}).
-                </p>
+                <p className="text-[11px] font-bold leading-tight">{feedback.text}</p>
               </div>
             </div>
           )}

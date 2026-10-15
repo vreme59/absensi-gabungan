@@ -42,10 +42,6 @@ export async function handleWhatsAppApiRequest(req: IncomingMessage, res: Server
   // 1. Check Status & QR
   if (url.startsWith('/api/wa/status') && req.method === 'GET') {
     const status = waGateway.getStatus();
-    // Auto-init if disconnected
-    if (status.status === 'disconnected') {
-      waGateway.init().catch(console.error);
-    }
     sendJson(res, 200, {
       success: true,
       data: status,
