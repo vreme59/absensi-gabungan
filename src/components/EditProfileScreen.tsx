@@ -42,11 +42,10 @@ export const EditProfileScreen: React.FC<{
       
       const userId = session.user.id;
 
-      // Update profiles table (Data profil siswa)
+      // Update profiles table (Hanya nomor telepon yang dapat diperbarui siswa)
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          nama: formData.fullName,
           phone: formData.phone,
         })
         .eq('id', userId);
@@ -55,11 +54,10 @@ export const EditProfileScreen: React.FC<{
         throw updateError;
       }
 
-      showFeedbackToast('Data profil berhasil diperbarui!');
+      showFeedbackToast('Nomor telepon berhasil diperbarui!');
       
       // Update parent state
       onProfileUpdated({
-        name: formData.fullName,
         phone: formData.phone,
       });
       
@@ -143,11 +141,6 @@ export const EditProfileScreen: React.FC<{
               />
             </div>
             
-            {/* Foto Resmi Dapodik Badge (Siswa tidak bisa ganti foto) */}
-            <div className="mt-3 px-3.5 py-1 bg-black/25 backdrop-blur-md rounded-full border border-white/30 flex items-center gap-1.5 shadow-xs">
-              <span className="material-symbols-outlined notranslate text-[14px] text-white">lock</span>
-              <span className="text-[11px] font-bold text-white tracking-wide">Foto Resmi Dapodik (Terkunci)</span>
-            </div>
           </div>
         </div>
 
@@ -161,10 +154,10 @@ export const EditProfileScreen: React.FC<{
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              {/* Field 1: Nama Lengkap */}
+              {/* Field 1: Nama Lengkap (Read Only - Dapodik) */}
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="fullName" className="text-[13px] font-semibold text-[#0b1c30] flex items-center gap-1">
-                  Nama Lengkap <span className="text-amber-700 font-bold">*</span>
+                <label htmlFor="fullName" className="text-[13px] font-semibold text-slate-500 flex items-center gap-1">
+                  Nama Lengkap <span className="text-xs text-slate-400 font-normal">(Terkunci Sistem Dapodik)</span>
                 </label>
                 <div className="relative flex items-center">
                   <span className="material-symbols-outlined absolute left-3.5 text-slate-400 text-[20px] pointer-events-none">
@@ -173,11 +166,10 @@ export const EditProfileScreen: React.FC<{
                   <input
                     type="text"
                     id="fullName"
-                    required
+                    disabled
+                    readOnly
                     value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    placeholder="Masukkan nama lengkap siswa..."
-                    className="w-full h-12 pl-11 pr-4 bg-[#eef4fc] text-[#0b1c30] text-[14px] font-medium rounded-xl border border-transparent focus:border-[#005fa0] focus:bg-white focus:outline-none focus:ring-3 focus:ring-[#005fa0]/15 transition-all"
+                    className="w-full h-12 pl-11 pr-4 bg-slate-100 text-slate-500 text-[14px] font-medium rounded-xl border border-slate-200/60 cursor-not-allowed select-none"
                   />
                 </div>
               </div>

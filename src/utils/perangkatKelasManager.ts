@@ -5,6 +5,8 @@ export interface PerangkatKelasConfig {
   kelasId: string;
   sekretarisId: string | null;
   sekretarisNama: string;
+  sekretaris2Id?: string | null;
+  sekretaris2Nama?: string;
   ketuaKelasId: string | null;
   ketuaKelasNama: string;
   // Mandat darurat hari ini oleh wali kelas jika sekretaris & ketua absen
@@ -17,12 +19,12 @@ export interface PerangkatKelasConfig {
 
 export interface WewenangPengabsenResult {
   canInputAttendance: boolean;
-  officerRole: 'sekretaris' | 'ketua_kelas' | 'mandat_wali' | 'siswa_biasa';
+  officerRole: 'sekretaris' | 'sekretaris_2' | 'ketua_kelas' | 'mandat_wali' | 'siswa_biasa';
   activeOfficerId: string | null;
   activeOfficerName: string;
   officerTitle: string;
   officerReason: string;
-  hierarchyStep: 1 | 2 | 3 | 4; // 1: Sekretaris, 2: Ketua Kelas, 3: Mandat Wali, 4: Guru Mapel
+  hierarchyStep: 1 | 2 | 3 | 4; // 1: Sekretaris, 2: Ketua Kelas / Sekr 2, 3: Mandat Wali, 4: Guru Mapel
   isDelegated: boolean;
   sekretarisAbsent: boolean;
   ketuaAbsent: boolean;
@@ -39,6 +41,8 @@ export function getPerangkatKelas(
       kelasId: '',
       sekretarisId: null,
       sekretarisNama: '',
+      sekretaris2Id: null,
+      sekretaris2Nama: '',
       ketuaKelasId: null,
       ketuaKelasNama: '',
       mandatSiswaId: null,
@@ -62,13 +66,15 @@ export function getPerangkatKelas(
   let defaultKetuaNama = '';
   let defaultSekretarisId = null;
   let defaultSekretarisNama = '';
+  let defaultSekretaris2Id = null;
+  let defaultSekretaris2Nama = '';
 
   if (defaultStudents && defaultStudents.length > 0) {
     // Default Ketua Kelas: Siswa 1
     defaultKetuaId = defaultStudents[0].id;
     defaultKetuaNama = defaultStudents[0].nama;
 
-    // Default Sekretaris: Siswa 2 (atau siswa 1 jika hanya ada 1)
+    // Default Sekretaris 1: Siswa 2
     if (defaultStudents.length > 1) {
       defaultSekretarisId = defaultStudents[1].id;
       defaultSekretarisNama = defaultStudents[1].nama;
@@ -76,12 +82,20 @@ export function getPerangkatKelas(
       defaultSekretarisId = defaultStudents[0].id;
       defaultSekretarisNama = defaultStudents[0].nama;
     }
+
+    // Default Sekretaris 2: Siswa 3
+    if (defaultStudents.length > 2) {
+      defaultSekretaris2Id = defaultStudents[2].id;
+      defaultSekretaris2Nama = defaultStudents[2].nama;
+    }
   }
 
   const initialConfig: PerangkatKelasConfig = {
     kelasId,
     sekretarisId: defaultSekretarisId,
     sekretarisNama: defaultSekretarisNama,
+    sekretaris2Id: defaultSekretaris2Id,
+    sekretaris2Nama: defaultSekretaris2Nama,
     ketuaKelasId: defaultKetuaId,
     ketuaKelasNama: defaultKetuaNama,
     mandatSiswaId: null,

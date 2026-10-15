@@ -384,13 +384,20 @@ export const MuridHomeScreen: React.FC<MuridHomeScreenProps> = ({
               <span className="font-bold text-slate-800">{perangkatKelas.waliKelasNama || 'Ibu Dina Purba, S.Pd.'}</span>
             </p>
             <p className="flex justify-between">
-              <span className="text-slate-400 font-medium">Sekretaris Kelas:</span>
+              <span className="text-slate-400 font-medium">Sekretaris 1:</span>
               <span className="font-bold text-slate-800">{perangkatKelas.sekretarisNama || 'Farhan Ramadhan'}</span>
             </p>
+            {perangkatKelas.sekretaris2Nama && (
+              <p className="flex justify-between">
+                <span className="text-slate-400 font-medium">Sekretaris 2:</span>
+                <span className="font-bold text-slate-800">{perangkatKelas.sekretaris2Nama}</span>
+              </p>
+            )}
             <p className="flex justify-between">
               <span className="text-slate-400 font-medium">Ketua Kelas:</span>
               <span className="font-bold text-slate-800">{perangkatKelas.ketuaKelasNama || 'Ketua Kelas'}</span>
             </p>
+          </div>
         </div>
       </div>
 

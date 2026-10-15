@@ -17,16 +17,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [showRoleMenu, setShowRoleMenu] = useState(false);
 
+  const isTeacherTier = user.role === 'guru' || user.role === 'wali_kelas' || user.is_wali_kelas || user.role === 'guru_piket';
+
   const tabLabels: Record<string, string> = {
-    beranda: (user.role === 'operator' || (user.role as any) === 'admin' || user.role === 'superadmin') ? (user.role === 'superadmin' ? 'Super Admin SIAP' : 'Admin TU') : 'Beranda',
+    beranda: (user.role === 'operator' || (user.role as any) === 'admin' || user.role === 'superadmin')
+      ? (user.role === 'superadmin' ? 'Super Admin SIAP' : 'Admin TU')
+      : isTeacherTier ? 'Portal Wali Kelas' : 'Beranda',
     jadwal: 'Jadwal',
-    absensi: user.role === 'guru' ? 'Validasi Mapel' : (user.role === 'operator' || (user.role as any) === 'admin' || user.role === 'superadmin') ? 'Wali & Piket' : 'Absensi',
+    absensi: isTeacherTier ? 'Perangkat Kelas' : (user.role === 'operator' || (user.role as any) === 'admin' || user.role === 'superadmin') ? 'Wali & Piket' : 'Absensi',
     profil: 'Profil Pengguna',
     'wali-kelas': 'Wali Kelas',
     'guru-piket': 'Guru Piket',
   };
-
-  const isTeacherTier = user.role === 'guru' || user.role === 'wali_kelas' || user.role === 'guru_piket';
 
   return (
     <header className="fixed top-0 w-full z-40 bg-primary pt-safe shadow-[0_4px_16px_rgba(0,95,160,0.18)]">

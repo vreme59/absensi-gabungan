@@ -28,8 +28,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     },
     {
       id: 'absensi',
-      label: isAdminTier ? 'Wali & Piket' : isTeacherTier ? 'Validasi' : 'Absensi',
-      icon: isAdminTier ? 'supervisor_account' : isTeacherTier ? 'fact_check' : 'checklist',
+      label: isAdminTier ? 'Wali & Piket' : isTeacherTier ? 'Perangkat' : 'Absensi',
+      icon: isAdminTier ? 'supervisor_account' : isTeacherTier ? 'assignment_ind' : 'checklist',
       badge: isTeacherTier && pendingValidationCount > 0 ? pendingValidationCount : undefined,
     },
     {

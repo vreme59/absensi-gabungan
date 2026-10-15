@@ -26,6 +26,7 @@ import { AttendanceScreen } from './components/AttendanceScreen';
 import { SubmitModal } from './components/SubmitModal';
 import { AttachmentModal } from './components/AttachmentModal';
 import { ValidasiGuruScreen } from './components/ValidasiGuruScreen';
+import { PerangkatKelasScreen } from './components/PerangkatKelasScreen';
 import { WaliKelasDashboard } from './components/WaliKelasDashboard';
 import { GuruPiketDashboard } from './components/GuruPiketDashboard';
 import { OperatorDashboard } from './components/OperatorDashboard';
@@ -379,6 +380,12 @@ export default function App() {
               initialRoleMode={currentUser.role === 'superadmin' ? 'superadmin' : 'admin'}
               onLogout={handleLogout}
             />
+          ) : (currentUser.role === 'guru' || currentUser.role === 'wali_kelas' || currentUser.is_wali_kelas) ? (
+            <WaliKelasDashboard
+              user={currentUser}
+              onNavigateHome={() => setCurrentTab('beranda')}
+              onShowToast={showToast}
+            />
           ) : (
             <HomeScreen
               user={currentUser}
@@ -415,47 +422,47 @@ export default function App() {
               onShowToast={showToast}
               initialTab="wali_kelas"
             />
-          ) : supabaseRole === 'siswa' ? (
-              <div className="w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl mx-auto pb-24 px-3 sm:px-4">
-                <AttendanceScreen
-                  readOnly={!wewenangPengabsen.canInputAttendance}
-                  officerInfo={{
-                    canInput: wewenangPengabsen.canInputAttendance,
-                    officerRole: wewenangPengabsen.officerRole,
-                    title: wewenangPengabsen.officerTitle,
-                    name: wewenangPengabsen.activeOfficerName,
-                    reason: wewenangPengabsen.officerReason,
-                    isDelegated: wewenangPengabsen.isDelegated,
-                    hierarchyStep: wewenangPengabsen.hierarchyStep,
-                    sekretarisAbsent: wewenangPengabsen.sekretarisAbsent,
-                    ketuaAbsent: wewenangPengabsen.ketuaAbsent,
-                  }}
-                  classTitle={currentUser.kelas?.nama}
-                  students={oldStudents}
-                  onUpdateStudentStatus={handleUpdateStudentStatus}
-
-                  onOpenSubmitModal={() => setIsSubmitModalOpen(true)}
-                  onSaveOfflineDraft={handleSaveOfflineDraft}
-                  onViewAttachment={(student) => {
-                    setSelectedStudentForAttachment(student);
-                    setAttachmentModalMode('view');
-                  }}
-                  onEditNote={(student) => {
-                    setSelectedStudentForAttachment(student);
-                    setAttachmentModalMode(wewenangPengabsen.canInputAttendance ? 'edit' : 'view');
-                  }}
-                  isDraftSavedOffline={isDraftSavedOffline}
-                  onNavigateHome={() => setCurrentTab('beranda')}
-                  containerWidthClass="w-full"
-                />
-              </div>
-            ) : (
-            <ValidasiGuruScreen
+          ) : (currentUser.role === 'guru' || currentUser.role === 'wali_kelas' || currentUser.is_wali_kelas) ? (
+            <PerangkatKelasScreen
               user={currentUser}
               initialClassId={currentUser.kelas_id || 'e88128be-8fc3-4973-8d69-00ef17571626'}
-              onClose={() => setCurrentTab('beranda')}
+              onNavigateHome={() => setCurrentTab('beranda')}
               onShowToast={showToast}
             />
+          ) : (
+            <div className="w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl mx-auto pb-24 px-3 sm:px-4">
+              <AttendanceScreen
+                readOnly={!wewenangPengabsen.canInputAttendance}
+                officerInfo={{
+                  canInput: wewenangPengabsen.canInputAttendance,
+                  officerRole: wewenangPengabsen.officerRole,
+                  title: wewenangPengabsen.officerTitle,
+                  name: wewenangPengabsen.activeOfficerName,
+                  reason: wewenangPengabsen.officerReason,
+                  isDelegated: wewenangPengabsen.isDelegated,
+                  hierarchyStep: wewenangPengabsen.hierarchyStep,
+                  sekretarisAbsent: wewenangPengabsen.sekretarisAbsent,
+                  ketuaAbsent: wewenangPengabsen.ketuaAbsent,
+                }}
+                classTitle={currentUser.kelas?.nama}
+                students={oldStudents}
+                onUpdateStudentStatus={handleUpdateStudentStatus}
+
+                onOpenSubmitModal={() => setIsSubmitModalOpen(true)}
+                onSaveOfflineDraft={handleSaveOfflineDraft}
+                onViewAttachment={(student) => {
+                  setSelectedStudentForAttachment(student);
+                  setAttachmentModalMode('view');
+                }}
+                onEditNote={(student) => {
+                  setSelectedStudentForAttachment(student);
+                  setAttachmentModalMode(wewenangPengabsen.canInputAttendance ? 'edit' : 'view');
+                }}
+                isDraftSavedOffline={isDraftSavedOffline}
+                onNavigateHome={() => setCurrentTab('beranda')}
+                containerWidthClass="w-full"
+              />
+            </div>
           )
         )}
 
