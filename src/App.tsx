@@ -363,7 +363,15 @@ export default function App() {
         </div>
       )}
 
-      <main className={`flex-1 w-full ${isGuestPublic ? 'pt-24' : 'pt-16'}`}>
+      <main
+        className={`flex-1 w-full ${
+          isGuestPublic
+            ? 'pt-24'
+            : currentTab === 'ganti-password' || currentTab === 'edit-profil'
+            ? 'pt-0'
+            : 'pt-16'
+        }`}
+      >
         {currentTab === 'beranda' && (
           (currentUser.role === 'operator' || (currentUser.role as any) === 'admin' || currentUser.role === 'superadmin') ? (
             <AdminDashboardView

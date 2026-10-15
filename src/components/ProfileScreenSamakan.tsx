@@ -80,8 +80,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                     <span className="material-symbols-outlined notranslate text-[22px]">manage_accounts</span>
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-[13px] font-bold text-slate-800">Edit Profil &amp; Foto</span>
-                    <span className="text-[11px] text-slate-400 font-medium">Ubah foto atau data diri</span>
+                    <span className="text-[13px] font-bold text-slate-800">Edit Data Profil</span>
+                    <span className="text-[11px] text-slate-400 font-medium">Perbarui kontak &amp; data diri</span>
                   </div>
                 </div>
                 <span className="material-symbols-outlined notranslate text-slate-300 text-[20px] group-hover:translate-x-1 transition-transform">chevron_right</span>

@@ -60,7 +60,7 @@ export const ChangePasswordScreen: React.FC<{
   ].join(' ');
 
   return (
-    <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl mx-auto min-h-screen bg-slate-50 flex flex-col relative pb-20 selection:bg-[#005fa0] selection:text-white shadow-xl sm:border-x sm:border-slate-200 font-body">
+    <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl mx-auto min-h-screen bg-slate-50 flex flex-col relative top-0 mt-0 pt-0 pb-20 selection:bg-[#005fa0] selection:text-white shadow-xl sm:border-x sm:border-slate-200 font-body">
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md px-4 py-3 flex items-center border-b border-slate-100 shadow-sm gap-2">
         <button type="button" onClick={onBack} className="w-10 h-10 -ml-1 rounded-full flex items-center justify-center text-slate-800 hover:bg-slate-100 active:scale-95 transition-all">
           <span className="material-symbols-outlined text-[24px]">arrow_back</span>
